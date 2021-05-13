@@ -75,6 +75,7 @@ contract('MLM Staking', function(accounts) {
         const stakeAmount = "100" + DECIMALS
         await rewardToken.mint(owner, stakeAmount)
         await rewardToken.approve(dapp.address, stakeAmount)
+        await dapp.setPackageActivity(STAKE_TYPE, true)
 
         assert.equal(await dapp.staked.call(owner), 0, "No tokens staked initialy.")
         await dapp.stake(STAKE_TYPE, stakeAmount)
@@ -86,6 +87,7 @@ contract('MLM Staking', function(accounts) {
         let rewardToken = await RewardToken.deployed()
         const rewardAmount = "100" + DECIMALS
         await rewardToken.mint(dapp.address, rewardAmount)
+        await dapp.setPackageActivity(STAKE_TYPE, true)
 
         const deadline = 999999999
         const ownersPriKey = '80dfbd041bee76bd48424d29c451ff6a51b10624d7a26b496fa45a382efb9f9c' //evidence easy grief keen hurdle suggest topple aunt wealth news burden seven

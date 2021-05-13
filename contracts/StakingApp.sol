@@ -14,6 +14,7 @@ contract StakingApp is Ownable {
 
     mapping(address => uint) public staked;
     mapping(address => uint) public rewardReceived;
+    mapping(uint => bool) public packages;
 
     bytes32 public DOMAIN_SEPARATOR;
     // keccak256("Permit(address owner,address spender,uint256 package,uint256 value,uint256 nonce,uint256 deadline)");
@@ -37,14 +38,19 @@ contract StakingApp is Ownable {
         stakingToken = TRC20Managable(_stakingToken);
     }
 
+    function setPackageActivity(uint package, bool active) onlyOwner public {
+        packages[package] = active;
+    }
 
     function stake(uint package, uint amount) public {
+        require(packages[package], "Current package is not activated");
         stakingToken.transferFrom(msg.sender, address(this), amount);
         staked[msg.sender] = staked[msg.sender].add(amount);
         emit Stake(package, msg.sender, amount);
     }
 
     function withdrawReward(uint package, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public {
+        require(packages[package], "Current package is not activated");
         require(deadline >= block.timestamp, 'Withdraw expired.');
         bytes32 digest = keccak256(
             abi.encodePacked(
