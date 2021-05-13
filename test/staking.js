@@ -12,7 +12,7 @@ const { hexlify } = require('@ethersproject/bytes');
 
 const DECIMALS = '000000000000000000'
 const PERMIT_TYPEHASH = keccak256(
-    toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')
+    toUtf8Bytes('Permit(address owner,address spender,uint256 package,uint256 value,uint256 nonce,uint256 deadline)')
 )
 
 function getDomainSeparator(name, contractAddress) {
@@ -36,36 +36,38 @@ function convertTronAddress2Eth(tronAddress) {
 }
 
 function getApprovalDigest(
-    contractName,
-    contractAddress,
-    owner,
-    spender,
-    value,
-    nonce,
-    deadline) {
-    const DOMAIN_SEPARATOR = getDomainSeparator(contractName, contractAddress)
-    return keccak256(
-        pack(
-        ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
-        [
-          '0x19',
-          '0x01',
-          DOMAIN_SEPARATOR,
-          keccak256(
-            defaultAbiCoder.encode(
-              ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
-              [PERMIT_TYPEHASH, owner, spender, value, nonce, deadline]
-            )
+  contractName,
+  contractAddress,
+  owner,
+  spender,
+  package,
+  value,
+  nonce,
+  deadline) {
+  const DOMAIN_SEPARATOR = getDomainSeparator(contractName, contractAddress)
+  return keccak256(
+      pack(
+      ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+      [
+        '0x19',
+        '0x01',
+        DOMAIN_SEPARATOR,
+        keccak256(
+          defaultAbiCoder.encode(
+            ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+            [PERMIT_TYPEHASH, owner, spender, package, value, nonce, deadline]
           )
-        ]
-      )
+        )
+      ]
     )
+  )
 }
 
 
 contract('MLM Staking', function(accounts) {
     let owner = accounts[0]
     let receiver = accounts[1]
+    const STAKE_TYPE = 1
 
     it('stake tokens', async () => {
         let dapp = await StakingApp.deployed()
@@ -75,7 +77,7 @@ contract('MLM Staking', function(accounts) {
         await rewardToken.approve(dapp.address, stakeAmount)
 
         assert.equal(await dapp.staked.call(owner), 0, "No tokens staked initialy.")
-        await dapp.stake(stakeAmount)
+        await dapp.stake(STAKE_TYPE, stakeAmount)
         assert.equal((await dapp.staked.call(owner)).toString(), stakeAmount, "Wrong amount of staked tokens.")
     })
 
@@ -92,13 +94,14 @@ contract('MLM Staking', function(accounts) {
             convertTronAddress2Eth(dapp.address), 
             convertTronAddress2Eth(toHex(owner)), 
             convertTronAddress2Eth(toHex(receiver)), 
+            STAKE_TYPE,
             rewardAmount,
             await dapp.nonces.call(owner),
             deadline
         )
         const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ownersPriKey, 'hex'))
             
-        await dapp.withdrawReward(rewardAmount, deadline, v, hexlify(r), hexlify(s), {from: receiver})
+        await dapp.withdrawReward(STAKE_TYPE, rewardAmount, deadline, v, hexlify(r), hexlify(s), {from: receiver})
         assert.equal((await rewardToken.balanceOf.call(receiver)).toString(), rewardAmount, "Reward withdraw error.")
 
     })

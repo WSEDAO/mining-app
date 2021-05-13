@@ -16,12 +16,12 @@ contract StakingApp is Ownable {
     mapping(address => uint) public rewardReceived;
 
     bytes32 public DOMAIN_SEPARATOR;
-    // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    // keccak256("Permit(address owner,address spender,uint256 package,uint256 value,uint256 nonce,uint256 deadline)");
+    bytes32 public constant PERMIT_TYPEHASH = 0x65ad8b067c3f44412403886927c7578708b814943af80f48764dc4b9450c01ee;
     mapping(address => uint) public nonces;
 
-    event Stake(address indexed account, uint amount);
-    event RewardReceived(address indexed account, uint amount);
+    event Stake(uint package, address indexed account, uint amount);
+    event RewardReceived(uint package,address indexed account, uint amount);
 
     constructor(address _stakingToken) public {
         DOMAIN_SEPARATOR = keccak256(
@@ -38,19 +38,19 @@ contract StakingApp is Ownable {
     }
 
 
-    function stake(uint amount) public {
+    function stake(uint package, uint amount) public {
         stakingToken.transferFrom(msg.sender, address(this), amount);
         staked[msg.sender] = staked[msg.sender].add(amount);
-        emit Stake(msg.sender, amount);
+        emit Stake(package, msg.sender, amount);
     }
 
-    function withdrawReward(uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public {
+    function withdrawReward(uint package, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public {
         require(deadline >= block.timestamp, 'Withdraw expired.');
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(PERMIT_TYPEHASH, owner(), msg.sender, value, nonces[msg.sender]++, deadline))
+                keccak256(abi.encode(PERMIT_TYPEHASH, owner(), msg.sender, package, value, nonces[msg.sender]++, deadline))
             )
         );
 
@@ -59,7 +59,7 @@ contract StakingApp is Ownable {
 
         stakingToken.transfer(msg.sender, value);
         rewardReceived[msg.sender] = rewardReceived[msg.sender].add(value);
-        emit RewardReceived(msg.sender, value);
+        emit RewardReceived(package, msg.sender, value);
     }
 
 }
