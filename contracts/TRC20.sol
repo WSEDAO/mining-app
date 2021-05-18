@@ -22,7 +22,7 @@ contract TRC20 is ITRC20 {
     /**
      * @dev Total number of tokens in existence
      */
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() external view returns (uint256) {
         return _totalSupply;
     }
 
@@ -31,7 +31,7 @@ contract TRC20 is ITRC20 {
      * @param owner The address to query the balance of.
      * @return An uint256 representing the amount owned by the passed address.
      */
-    function balanceOf(address owner) public view returns (uint256) {
+    function balanceOf(address owner) external view returns (uint256) {
         return _balances[owner];
     }
 
@@ -45,7 +45,7 @@ contract TRC20 is ITRC20 {
         address owner,
         address spender
     )
-    public
+    external
     view
     returns (uint256)
     {
@@ -57,7 +57,7 @@ contract TRC20 is ITRC20 {
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */
-    function transfer(address to, uint256 value) public returns (bool) {
+    function transfer(address to, uint256 value) external returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
     }
@@ -71,7 +71,7 @@ contract TRC20 is ITRC20 {
      * @param spender The address which will spend the funds.
      * @param value The amount of tokens to be spent.
      */
-    function approve(address spender, uint256 value) public returns (bool) {
+    function approve(address spender, uint256 value) external returns (bool) {
         require(spender != address(0));
 
         _allowed[msg.sender][spender] = value;
@@ -90,7 +90,7 @@ contract TRC20 is ITRC20 {
         address to,
         uint256 value
     )
-    public
+    external
     returns (bool)
     {
         _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
@@ -111,7 +111,7 @@ contract TRC20 is ITRC20 {
         address spender,
         uint256 addedValue
     )
-    public
+    external
     returns (bool)
     {
         require(spender != address(0));
@@ -135,7 +135,7 @@ contract TRC20 is ITRC20 {
         address spender,
         uint256 subtractedValue
     )
-    public
+    external
     returns (bool)
     {
         require(spender != address(0));

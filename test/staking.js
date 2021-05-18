@@ -73,7 +73,6 @@ contract('MLM Staking', function(accounts) {
         let dapp = await StakingApp.deployed()
         let rewardToken = await RewardToken.deployed()
         const stakeAmount = "100" + DECIMALS
-        await rewardToken.mint(owner, stakeAmount)
         await rewardToken.approve(dapp.address, stakeAmount)
         await dapp.setPackageActivity(STAKE_TYPE, true)
 
@@ -86,7 +85,6 @@ contract('MLM Staking', function(accounts) {
         let dapp = await StakingApp.deployed()
         let rewardToken = await RewardToken.deployed()
         const rewardAmount = "100" + DECIMALS
-        await rewardToken.mint(dapp.address, rewardAmount)
         await dapp.setPackageActivity(STAKE_TYPE, true)
 
         const deadline = 999999999

@@ -44,7 +44,7 @@ contract Dapp is Ownable {
         registered[address(0)] = true;
     }
 
-    function registerAccount(address _referral) public {
+    function registerAccount(address _referral) external {
         require(registered[msg.sender] == false, "Account already registered.");
         require(registered[_referral], "Referral should be registered.");
         referrals[msg.sender]  = _referral;
@@ -52,7 +52,7 @@ contract Dapp is Ownable {
         emit RegisterAccount(msg.sender, _referral);
     }
 
-    function acquireHashPower(uint amount) public {
+    function acquireHashPower(uint amount) external {
         require(registered[msg.sender], "Account should be registered.");
         burnToken.transferFrom(msg.sender, address(this), amount);
         burnToken.burn(amount);
@@ -60,7 +60,7 @@ contract Dapp is Ownable {
         emit AquireHashPower(msg.sender, amount);
     }
 
-    function withdrawReward(uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public {
+    function withdrawReward(uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
         require(registered[msg.sender], "Account should be registered.");
         require(deadline >= block.timestamp, 'Withdraw expired.');
         bytes32 digest = keccak256(

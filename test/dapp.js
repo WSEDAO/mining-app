@@ -87,7 +87,6 @@ contract('MLM Dapp', function(accounts) {
         let dapp = await Dapp.deployed()
         let burnToken = await BurnToken.deployed()
         const burnAmount = "100" + DECIMALS
-        await burnToken.mint(owner, burnAmount)
         await burnToken.approve(dapp.address, burnAmount)
 
         assert.equal(await dapp.burnedTokens.call(owner), 0, "No tokens should be burned initialy.")
@@ -99,7 +98,8 @@ contract('MLM Dapp', function(accounts) {
     let dapp = await Dapp.deployed()
     let rewardToken = await RewardToken.deployed()
     const rewardAmount = "100" + DECIMALS
-    await rewardToken.mint(dapp.address, rewardAmount)
+    const initialAmount = await rewardToken.balanceOf.call(owner);
+    await rewardToken.transfer(dapp.address, rewardAmount);
 
     const deadline = 999999999
     const ownersPriKey = '80dfbd041bee76bd48424d29c451ff6a51b10624d7a26b496fa45a382efb9f9c' //evidence easy grief keen hurdle suggest topple aunt wealth news burden seven
@@ -115,7 +115,7 @@ contract('MLM Dapp', function(accounts) {
     const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ownersPriKey, 'hex'))
         
     await dapp.withdrawReward(rewardAmount, deadline, v, hexlify(r), hexlify(s))
-    assert.equal((await rewardToken.balanceOf.call(owner)).toString(), rewardAmount, "Reward withdraw error.")
+    assert.equal((await rewardToken.balanceOf.call(owner)).toString(), initialAmount.toString(), "Reward withdraw error.")
 
     })
 })

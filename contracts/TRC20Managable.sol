@@ -13,12 +13,6 @@ contract TRC20Managable is TRC20Detailed, Ownable {
 
     constructor (string memory name, string memory symbol, uint8 decimals) TRC20Detailed(name, symbol, decimals) public {
     }
-    
-     
-    function mint(address account, uint256 amount) external onlyOwner returns (bool) {
-        _mint(account, amount);
-        return true;
-    }
 
     function burn(uint256 amount) external {
         _burn(msg.sender, amount);
@@ -45,10 +39,6 @@ contract TRC20Managable is TRC20Detailed, Ownable {
         require(!isBlacklisted(from));
         require(!isBlacklisted(to));
         require(!isBlacklisted(msg.sender));
-        super._transfer(from, to, value);
-    }
-
-    function forceTransfer(address from, address to, uint256 value) external onlyOwner {
         super._transfer(from, to, value);
     }
 }
